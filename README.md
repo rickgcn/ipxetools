@@ -20,4 +20,4 @@ cp * /srv/tftp
 
 ## License
 
-This project is licensed under the Apache-2.0 license - see the [LICENSE.md](https://chat.openai.com/LICENSE.md) file for details.
+This project is licensed under the Apache-2.0 license - see the [LICENSE](https://github.com/rickgcn/ipxetools/blob/main/LICENSE) file for details.
