@@ -1,0 +1,115 @@
+#!ipxe
+
+# Menus
+
+:menu_linux
+clear os
+menu Linux Network Installs (64-bit)
+item arch ${space} Arch Linux
+item centos ${space} CentOS
+item debian ${space} Debian
+item fedora ${space} Fedora
+item ubuntu ${space} Ubuntu
+choose os || exit
+echo ${cls}
+goto ${os}
+
+:arch
+clear dist
+menu Arch Linux
+item arch-20230601 ${space} Arch Linux 2023.06.01
+choose dist || goto menu_linux
+echo ${cls}
+goto ${dist}
+
+:centos
+clear dist
+menu CentOS
+item centos9-stream ${space} CentOS 9 Stream
+choose dist || goto menu_linux
+echo ${cls}
+goto ${dist}
+
+:debian
+clear dist
+menu Debian
+item debian12 ${space} Debian 12
+item debian11 ${space} Debian 11
+item debian10 ${space} Debian 10
+choose dist || goto menu_linux
+echo ${cls}
+goto ${dist}
+
+:fedora
+clear dist
+menu Fedora
+item fedora38-s ${space} Fedora 38 Server
+item fedora38-e ${space} Fedora 38 Everything
+choose dist || goto menu_linux
+echo ${cls}
+goto ${dist}
+
+:ubuntu
+clear dist
+menu Ubuntu
+item ubuntu2204-d ${space} Ubuntu 22.04.2 Desktop
+item ubuntu2204-s ${space} Ubuntu 22.04.2 Server
+choose dist || goto menu_linux
+echo ${cls}
+goto ${dist}
+
+# Menu Items
+
+:arch-20230601
+kernel ${mirror_server}archlinux/iso/2023.06.01/arch/boot/x86_64/vmlinuz-linux
+initrd ${mirror_server}archlinux/iso/2023.06.01/arch/boot/amd-ucode.img
+initrd ${mirror_server}archlinux/iso/2023.06.01/arch/boot/intel-ucode.img
+initrd ${mirror_server}archlinux/iso/2023.06.01/arch/boot/x86_64/initramfs-linux.img
+imgargs vmlinuz-linux initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img archiso_http_srv=${mirror_server}archlinux/iso/2023.06.01/ ip=dhcp
+boot
+
+:centos9-stream
+kernel ${mirror_server}centos-stream/9-stream/BaseOS/x86_64/os/images/pxeboot/vmlinuz inst.repo=${mirror_server}centos-stream/9-stream/BaseOS/x86_64/os/ initrd=initrd.img
+initrd ${mirror_server}centos-stream/9-stream/BaseOS/x86_64/os/images/pxeboot/initrd.img
+boot
+
+:debian12
+kernel ${mirror_server}debian/dists/Debian12.0/main/installer-amd64/current/images/netboot/xen/vmlinuz initrd=initrd.gz
+initrd ${mirror_server}debian/dists/Debian12.0/main/installer-amd64/current/images/netboot/xen/initrd.gz
+boot
+
+:debian11
+kernel ${mirror_server}debian/dists/Debian11.7/main/installer-amd64/current/images/netboot/xen/vmlinuz initrd=initrd.gz
+initrd ${mirror_server}debian/dists/Debian11.7/main/installer-amd64/current/images/netboot/xen/initrd.gz
+boot
+
+:debian10
+kernel ${mirror_server}debian/dists/Debian10.13/main/installer-amd64/current/images/netboot/xen/vmlinuz initrd=initrd.gz
+initrd ${mirror_server}debian/dists/Debian10.13/main/installer-amd64/current/images/netboot/xen/initrd.gz
+boot
+
+:fedora38-s
+kernel ${mirror_server}fedora/releases/38/Server/x86_64/os/images/pxeboot/vmlinuz inst.repo=${mirror_server}fedora/releases/38/Server/x86_64/os/ initrd=initrd.img
+initrd ${mirror_server}fedora/releases/38/Server/x86_64/os/images/pxeboot/initrd.img
+boot
+
+:fedora38-e
+kernel ${mirror_server}fedora/releases/38/Everything/x86_64/os/images/pxeboot/vmlinuz inst.repo=${mirror_server}fedora/releases/38/Everything/x86_64/os/ initrd=initrd.img
+initrd ${mirror_server}fedora/releases/38/Everything/x86_64/os/images/pxeboot/initrd.img
+boot
+
+:ubuntu2204-d
+kernel ${mirror_github}kernel/ubuntu/22.04/desktop/vmlinuz ip=dhcp url=${mirror_server}ubuntu-releases/jammy/ubuntu-22.04.2-desktop-amd64.iso initrd=initrd
+initrd ${mirror_github}initrd/ubuntu/22.04/desktop/initrd
+boot
+
+:ubuntu2204-s
+kernel ${mirror_github}kernel/ubuntu/22.04/server/vmlinuz ip=dhcp url=${mirror_server}ubuntu-releases/jammy/ubuntu-22.04.2-live-server-amd64.iso initrd=initrd
+initrd ${mirror_github}initrd/ubuntu/22.04/server/initrd
+boot
+
+# Occurs when boot failed
+:boot_failed
+echo Boot Failed! Press any key to back to main menu...
+prompt
+exit

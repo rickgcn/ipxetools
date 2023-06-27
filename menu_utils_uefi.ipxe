@@ -1,0 +1,12 @@
+#!ipxe
+
+:menu_utils
+clear util
+menu Utilities (UEFI)
+item memtest ${space} Memtest86+
+choose util || exit
+echo ${cls}
+goto ${util}
+
+:memtest
+chain ${mirror_github}memtest/memtest64.efi

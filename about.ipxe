@@ -1,0 +1,9 @@
+#!ipxe
+
+:about
+clear about
+menu About iPXE Tools
+item about ${space} By rickgcn (https://github.com/rickgcn/ipxetools/)
+item exit_about Back to main menu...
+choose about || exit
+exit

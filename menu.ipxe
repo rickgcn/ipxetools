@@ -1,0 +1,144 @@
+#!ipxe
+
+:start
+# Detect the architecture
+isset ${arch} && goto skip_arch_detect ||
+cpuid --ext 29 && set arch x86_64 || set arch i386
+iseq ${buildarch} arm64 && set arch arm64 ||
+:skip_arch_detect
+chain --autofree boot.cfg ||
+ntp 0.pool.ntp.org ||
+iseq ${cls} serial && goto ignore_cls ||
+set cls:hex 1b:5b:4a  # ANSI clear screen sequence - "^[[J"
+set cls ${cls:string}
+:ignore_cls
+
+:main_menu
+clear menu
+set space:hex 20:20
+set space ${space:string}
+menu ${tool_name}
+item --gap Default:
+item local ${space} Boot from local disk...
+item --gap Distributions:
+iseq ${menu_linux} 1 && item linux ${space} Linux Network Installs (64-bit) ||
+iseq ${menu_linux_i386} 1 && item linux-i386 ${space} Linux Network Installs (32-bit) ||
+iseq ${menu_linux_arm} 1 && item linux-arm ${space} Linux Network Installs (arm64) ||
+iseq ${menu_live} 1 && item live ${space} Live CDs ||
+iseq ${menu_live_arm} 1 && item live-arm ${space} Live CDs ||
+iseq ${menu_bsd} 1 && item bsd ${space} BSD Installs ||
+iseq ${menu_unix} 1 && item unix ${space} Unix Network Installs ||
+iseq ${menu_freedos} 1 && item freedos ${space} FreeDOS ||
+iseq ${menu_windows} 1 && item windows ${space} Windows ||
+item --gap Tools:
+iseq ${menu_utils} 1 && iseq ${platform} efi && item utils-efi ${space} Utilities (UEFI) ||
+iseq ${menu_utils} 1 && iseq ${platform} pcbios && iseq ${arch} x86_64 && item utils-pcbios-64 ${space} Utilities (64-bit) ||
+iseq ${menu_utils} 1 && iseq ${platform} pcbios && iseq ${arch} i386 && item utils-pcbios-32 ${space} Utilities (32-bit) ||
+iseq ${menu_utils_arm} 1 && item utils-arm ${space} Utilities (arm64) ||
+item change_arch ${space} Architecture: ${arch}
+item shell ${space} iPXE shell
+item config ${space} iPXE Configuration
+item netinfo ${space} Network card info
+item about ${space} About iPXE Tools
+item reboot ${space} Reboot Computer
+isset ${menu} && set timeout 0 || set timeout ${boot_timeout}
+choose --timeout ${timeout} --default ${menu} menu || goto local
+echo ${cls}
+goto ${menu} ||
+
+# Linux Network Installs (64-bit)
+:linux
+chain menu_linux.ipxe
+goto main_menu
+
+# Linux Network Installs (32-bit)
+:linux-i386
+chain menu_linux_i386.ipxe
+goto main_menu
+
+# Linux Network Installs (arm64)
+:linux-arm
+chain menu_linux_arm.ipxe
+goto main_menu
+
+# Live CDs
+:live
+chain menu_live.ipxe
+goto main_menu
+
+# Live CDs (arm64)
+:live-arm
+chain menu_live_arm.ipxe
+goto main_menu
+
+# Windows Network Installs
+:windows
+chain menu_windows.ipxe
+goto main_menu
+
+# Utilities (UEFI)
+:utils-efi
+chain menu_utils_uefi.ipxe
+goto main_menu
+
+# Utilities (BIOS64)
+:utils-pcbios-64
+chain menu_utils_bios64.ipxe
+goto main_menu
+
+# Utilities (BIOS32)
+:utils-pcbios-32
+chain menu_utils_bios32.ipxe
+goto main_menu
+
+# Utilities (arm64)
+:utils-arm
+chain menu_utils_arm.ipxe
+goto main_menu
+
+# Set the architecture
+:change_arch
+iseq ${arch} x86_64 && set arch i386 && set menu_linux_i386 1 && set menu_linux 0 && goto main_menu ||
+iseq ${arch} i386 && set arch x86_64 && set menu_linux_i386 0 && set menu_linux 1 && goto main_menu ||
+goto main_menu
+
+# When error occurs
+:error
+echo Error occured, press any key to return to menu ...
+prompt
+goto main_menu
+
+# Boot from local disks
+:local
+echo Booting from local disks ...
+exit 0
+
+# iPXE shell
+:shell
+echo Type "exit" to return to main menu.
+set menu main_menu
+shell
+goto main_menu
+
+# iPXE Configuration
+:config
+config
+goto main_menu
+
+# Network Info
+:netinfo
+chain netinfo.ipxe
+goto main_menu
+
+# About iPXE Tools
+:about
+chain about.ipxe
+goto main_menu
+
+:exit_about
+goto main_menu
+
+# Reboot the computer
+:reboot
+echo Rebooting...
+reboot
