@@ -1,5 +1,5 @@
 # iPXE Tools
-A network-based bootable operating system installer based on iPXE.
+A network-based bootable operating system installer based on [iPXE](https://github.com/ipxe/ipxe).
 
 ## Deploy
 
